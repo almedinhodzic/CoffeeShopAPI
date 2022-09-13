@@ -1,5 +1,7 @@
 using CoffeeShopAPI.Config;
 using CoffeeShopAPI.Data;
+using CoffeeShopAPI.IRepository;
+using CoffeeShopAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoffeeShopAPI
@@ -20,6 +22,12 @@ namespace CoffeeShopAPI
 
             // Adding AutoMapper
             builder.Services.AddAutoMapper(typeof(MapperConfig));
+
+            // Repository injections
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

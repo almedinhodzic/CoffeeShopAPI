@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CoffeeShopAPI.Data;
+using CoffeeShopAPI.Models.Products;
+using AutoMapper;
+using CoffeeShopAPI.IRepository;
 
 namespace CoffeeShopAPI.Controllers
 {
@@ -13,72 +16,56 @@ namespace CoffeeShopAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly IMapper _mapper;
+        private readonly IProductRepository _productRepository;
 
-        public ProductsController(ApplicationDbContext context, 
-            IWebHostEnvironment webHostEnvironment)
+        public ProductsController(
+            IWebHostEnvironment webHostEnvironment,
+            IMapper mapper,
+            IProductRepository productRepository)
         {
-            _context = context;
             this.webHostEnvironment = webHostEnvironment;
+            _mapper = mapper;
+            _productRepository = productRepository;
         }
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
-          if (_context.Products == null)
-          {
-              return NotFound();
-          }
-            return await _context.Products.ToListAsync();
+            var products = await _productRepository.GetAllAsync();
+            
+            return _mapper.Map<List<Product>, List<ProductDto>>(products);
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDetailsDto>> GetProduct(int id)
         {
-          if (_context.Products == null)
-          {
-              return NotFound();
-          }
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productRepository.GetProductDetailsAsync(id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            return product;
+            return Ok(product);
         }
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, [FromBody]UpdateProductDto productDto)
         {
-            if (id != product.Id)
+            if (id != productDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
+            var product = _mapper.Map<UpdateProductDto, Product>(productDto);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _productRepository.UpdateAsync(product);
 
             return NoContent();
         }
@@ -86,45 +73,40 @@ namespace CoffeeShopAPI.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<ProductDetailsDto>> PostProduct(CreateProductDto productDto)
         {
-          if (_context.Products == null)
-          {
-              return Problem("Entity set 'ApplicationDbContext.Products'  is null.");
-          }
-/*            if(product.ImageFile != null)
-            {
-                product.ImageName = await SaveImage(product.ImageFile);
-            }*/
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            if (productDto.ImageFile != null)
+            {
+                productDto.ImageName = await SaveImage(productDto.ImageFile);
+            }
+
+            var product = _mapper.Map<CreateProductDto, Product>(productDto);
+            await _productRepository.AddAsync(product);
+
+            return CreatedAtAction(
+                "GetProduct",
+                new { id = product.Id },
+                _mapper.Map<Product, ProductDetailsDto>(product));
         }
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            if (_context.Products == null)
-            {
-                return NotFound();
-            }
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            if (!await ProductExists(id))
             {
                 return NotFound();
             }
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            await _productRepository.DeleteAsync(id);
 
             return NoContent();
         }
 
-        private bool ProductExists(int id)
+        private async Task<bool> ProductExists(int id)
         {
-            return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
+            return await _productRepository.Exists(id);
         }
 
         [NonAction]
@@ -133,7 +115,7 @@ namespace CoffeeShopAPI.Controllers
             string imageName = new string(Path.GetFileNameWithoutExtension(imageFile.FileName).Take(10).ToArray()).Replace(' ', '-');
             imageName = imageName + DateTime.Now.ToString("yymmssfff") + Path.GetExtension(imageFile.FileName);
             var imagePath = Path.Combine(webHostEnvironment.ContentRootPath, "Images", imageName);
-            using(var fileStream = new FileStream(imagePath, FileMode.Create))
+            using (var fileStream = new FileStream(imagePath, FileMode.Create))
             {
                 await imageFile.CopyToAsync(fileStream);
             }

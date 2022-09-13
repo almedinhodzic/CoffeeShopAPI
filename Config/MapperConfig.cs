@@ -14,6 +14,7 @@ namespace CoffeeShopAPI.Config
             CreateMap<Product, ProductDetailsDto>().ReverseMap();
             CreateMap<Product, CreateProductDto>().ReverseMap();
             CreateMap<Product, UpdateProductDto>().ReverseMap();
+            CreateMap<Product, ProductDto>().ReverseMap();
             // Category Mapping
             CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<Category, CreateCategoryDto>().ReverseMap();
