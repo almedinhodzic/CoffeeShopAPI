@@ -29,6 +29,18 @@ namespace CoffeeShopAPI
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: "AllowAll",
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("*")
+                                      .AllowAnyHeader().AllowAnyMethod();
+                                  });
+            });
+
+            // services.AddResponseCaching();
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -44,6 +56,8 @@ namespace CoffeeShopAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAll");
 
             app.UseAuthorization();
 

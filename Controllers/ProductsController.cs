@@ -56,11 +56,21 @@ namespace CoffeeShopAPI.Controllers
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, [FromBody]UpdateProductDto productDto)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody]UpdateProductDto productDto)
         {
             if (id != productDto.Id)
             {
                 return BadRequest();
+            }
+
+            if(!await ProductExists(id))
+            {
+                return NotFound();
+            }
+
+            if (productDto.ImageFile != null)
+            {
+                productDto.ImageName = await SaveImage(productDto.ImageFile);
             }
 
             var product = _mapper.Map<UpdateProductDto, Product>(productDto);
@@ -73,7 +83,7 @@ namespace CoffeeShopAPI.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ProductDetailsDto>> PostProduct(CreateProductDto productDto)
+        public async Task<ActionResult<ProductDetailsDto>> CreateProduct(CreateProductDto productDto)
         {
 
             if (productDto.ImageFile != null)

@@ -31,7 +31,7 @@ namespace CoffeeShopAPI.Repository
 
         public async Task<bool> Exists(int id)
         {
-            var entity = await GetAsync(id);
+            var entity = await GetNoTrackingAsync(id);
             return entity != null;
         }
 
@@ -43,6 +43,16 @@ namespace CoffeeShopAPI.Repository
         public async Task<T?> GetAsync(int id)
         {
             var entity = await _context.Set<T>().FindAsync(id);
+            return entity;
+        }
+
+        public async Task<T?> GetNoTrackingAsync(int id)
+        {
+            var entity = await _context.Set<T>().FindAsync(id);
+            if(entity != null)
+            {
+                _context.Entry(entity).State = EntityState.Detached;
+            }
             return entity;
         }
 
