@@ -3,6 +3,7 @@ using CoffeeShopAPI.Data;
 using CoffeeShopAPI.IRepository;
 using CoffeeShopAPI.Repository;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace CoffeeShopAPI
 {
@@ -19,6 +20,11 @@ namespace CoffeeShopAPI
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
             });
+
+            // Add logging into the project
+            builder.Host.UseSerilog(
+                (ctx, lc) =>
+                    lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
             // Adding AutoMapper
             builder.Services.AddAutoMapper(typeof(MapperConfig));
