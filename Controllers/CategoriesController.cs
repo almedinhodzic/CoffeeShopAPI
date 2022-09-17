@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using CoffeeShopAPI.Data;
+using CoffeeShopAPI.Exceptions;
 using CoffeeShopAPI.IRepository;
 using CoffeeShopAPI.Models.Categories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopAPI.Controllers
@@ -15,7 +15,7 @@ namespace CoffeeShopAPI.Controllers
     {
         public readonly ICategoryRepository _categoryRepository;
         public readonly IMapper _mapper;
-        public CategoriesController(ICategoryRepository categoryRepository, 
+        public CategoriesController(ICategoryRepository categoryRepository,
             IMapper mapper)
         {
             _categoryRepository = categoryRepository;
@@ -28,9 +28,9 @@ namespace CoffeeShopAPI.Controllers
         public async Task<ActionResult<List<CategoryDto>>> GetCategories()
         {
             var categories = await _categoryRepository.GetAllAsync();
-            if(categories == null)
+            if (categories == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(GetCategories), "");
             }
 
             var records = _mapper.Map<List<Category>, List<CategoryDto>>(categories);
@@ -45,9 +45,9 @@ namespace CoffeeShopAPI.Controllers
 
             var category = await _categoryRepository.GetAsync(id);
 
-            if(category == null)
+            if (category == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(GetCategory), id);
             }
 
             var record = _mapper.Map<Category, CategoryDto>(category);
@@ -59,9 +59,9 @@ namespace CoffeeShopAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                throw new BadRequestException(nameof(CreateCategory));
             }
 
             var category = _mapper.Map<CreateCategoryDto, Category>(createCategoryDto);
@@ -76,14 +76,14 @@ namespace CoffeeShopAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
-            if(id != updateCategoryDto.Id)
+            if (id != updateCategoryDto.Id)
             {
-                return BadRequest();
+                throw new BadRequestException(nameof(UpdateCategory));
             }
 
-            if(!await _categoryRepository.Exists(id))
+            if (!await _categoryRepository.Exists(id))
             {
-                return NotFound();
+                throw new NotFoundException(nameof(UpdateCategory), id);
             }
 
             var category = _mapper.Map<UpdateCategoryDto, Category>(updateCategoryDto);
@@ -99,9 +99,9 @@ namespace CoffeeShopAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            if(!await _categoryRepository.Exists(id))
+            if (!await _categoryRepository.Exists(id))
             {
-                return NotFound();
+                throw new NotFoundException(nameof(DeleteCategory), id);
             }
 
             await _categoryRepository.DeleteAsync(id);
@@ -119,7 +119,7 @@ namespace CoffeeShopAPI.Controllers
             var categories = await _categoryRepository.GetAllAsync();
             if (categories == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(GetCategoriesV2), "");
             }
 
             var records = _mapper.Map<List<Category>, List<CategoryDto>>(categories);

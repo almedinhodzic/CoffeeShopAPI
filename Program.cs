@@ -1,11 +1,11 @@
 using CoffeeShopAPI.Config;
 using CoffeeShopAPI.Data;
 using CoffeeShopAPI.IRepository;
+using CoffeeShopAPI.Middleware;
 using CoffeeShopAPI.Repository;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace CoffeeShopAPI
 {
@@ -59,15 +59,15 @@ namespace CoffeeShopAPI
             {
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.DefaultApiVersion = new ApiVersion(1, 0); // 1.0, or use constant ApiVersion.Default, its 1.0
-                //options.ApiVersionReader = new MediaTypeApiVersionReader("version");
-                // To get value for version through accept header, default is query string
-                //options.ApiVersionReader = new HeaderApiVersionReader("Version"); // custom header name
-/*                options.ApiVersionReader = ApiVersionReader.Combine(
-                    new MediaTypeApiVersionReader("version"),
-                    new HeaderApiVersionReader("X-Version")
-                    );*/ // To combine both
-                //options.ReportApiVersions = true; // To show in response headers which version are supported by an API
-                // Its even possible to specifify controller inhere and say which version it supports and which actions supports which version
+                                                                  //options.ApiVersionReader = new MediaTypeApiVersionReader("version");
+                                                                  // To get value for version through accept header, default is query string
+                                                                  //options.ApiVersionReader = new HeaderApiVersionReader("Version"); // custom header name
+                /*                options.ApiVersionReader = ApiVersionReader.Combine(
+                                    new MediaTypeApiVersionReader("version"),
+                                    new HeaderApiVersionReader("X-Version")
+                                    );*/ // To combine both
+                                         //options.ReportApiVersions = true; // To show in response headers which version are supported by an API
+                                         // Its even possible to specifify controller inhere and say which version it supports and which actions supports which version
             });
 
             var app = builder.Build();
@@ -78,6 +78,9 @@ namespace CoffeeShopAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            // Use middleware for exceptions
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 

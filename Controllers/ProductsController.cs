@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
 using CoffeeShopAPI.Data;
-using CoffeeShopAPI.Models.Products;
-using AutoMapper;
+using CoffeeShopAPI.Exceptions;
 using CoffeeShopAPI.IRepository;
+using CoffeeShopAPI.Models.Products;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopAPI.Controllers
 {
@@ -35,7 +30,7 @@ namespace CoffeeShopAPI.Controllers
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
             var products = await _productRepository.GetAllAsync();
-            
+
             return _mapper.Map<List<Product>, List<ProductDto>>(products);
         }
 
@@ -47,7 +42,7 @@ namespace CoffeeShopAPI.Controllers
 
             if (product == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(GetProduct), id);
             }
 
             return Ok(product);
@@ -56,16 +51,16 @@ namespace CoffeeShopAPI.Controllers
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody]UpdateProductDto productDto)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDto productDto)
         {
             if (id != productDto.Id)
             {
-                return BadRequest();
+                throw new BadRequestException(nameof(UpdateProduct));
             }
 
-            if(!await ProductExists(id))
+            if (!await _productRepository.Exists(id))
             {
-                return NotFound();
+                throw new NotFoundException(nameof(UpdateProduct), id);
             }
 
             if (productDto.ImageFile != null)
@@ -85,6 +80,10 @@ namespace CoffeeShopAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<ProductDetailsDto>> CreateProduct(CreateProductDto productDto)
         {
+            if (!ModelState.IsValid)
+            {
+                throw new BadRequestException(nameof(CreateProduct));
+            }
 
             if (productDto.ImageFile != null)
             {
@@ -104,19 +103,14 @@ namespace CoffeeShopAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            if (!await ProductExists(id))
+            if (!await _productRepository.Exists(id))
             {
-                return NotFound();
+                throw new NotFoundException(nameof(DeleteProduct), id);
             }
 
             await _productRepository.DeleteAsync(id);
 
             return NoContent();
-        }
-
-        private async Task<bool> ProductExists(int id)
-        {
-            return await _productRepository.Exists(id);
         }
 
         [NonAction]
