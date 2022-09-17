@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     public class CategoriesController : ControllerBase
     {
         public readonly ICategoryRepository _categoryRepository;
@@ -104,6 +106,28 @@ namespace CoffeeShopAPI.Controllers
 
             await _categoryRepository.DeleteAsync(id);
             return NoContent();
+        }
+
+        // This action is to demonstrate versioning
+        [HttpGet("GetCategoriesV2")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ApiVersion("2.0")]
+        [MapToApiVersion("2.0")]
+        public async Task<ActionResult<List<CategoryDto>>> GetCategoriesV2()
+        {
+            var categories = await _categoryRepository.GetAllAsync();
+            if (categories == null)
+            {
+                return NotFound();
+            }
+
+            var records = _mapper.Map<List<Category>, List<CategoryDto>>(categories);
+            foreach (var record in records)
+            {
+                record.Name = "V2";
+            }
+            return Ok(records);
         }
 
     }

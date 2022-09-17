@@ -4,6 +4,8 @@ using CoffeeShopAPI.IRepository;
 using CoffeeShopAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace CoffeeShopAPI
 {
@@ -51,6 +53,22 @@ namespace CoffeeShopAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // Adding Versioning
+            builder.Services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0); // 1.0, or use constant ApiVersion.Default, its 1.0
+                //options.ApiVersionReader = new MediaTypeApiVersionReader("version");
+                // To get value for version through accept header, default is query string
+                //options.ApiVersionReader = new HeaderApiVersionReader("Version"); // custom header name
+/*                options.ApiVersionReader = ApiVersionReader.Combine(
+                    new MediaTypeApiVersionReader("version"),
+                    new HeaderApiVersionReader("X-Version")
+                    );*/ // To combine both
+                //options.ReportApiVersions = true; // To show in response headers which version are supported by an API
+                // Its even possible to specifify controller inhere and say which version it supports and which actions supports which version
+            });
 
             var app = builder.Build();
 
