@@ -3,6 +3,7 @@ using CoffeeShopAPI.Data;
 using CoffeeShopAPI.Models.Categories;
 using CoffeeShopAPI.Models.Orders;
 using CoffeeShopAPI.Models.Products;
+using CoffeeShopAPI.Models.Users;
 
 namespace CoffeeShopAPI.Config
 {
@@ -23,6 +24,9 @@ namespace CoffeeShopAPI.Config
             CreateMap<Order, OrderDetailsDto>().ReverseMap();
             CreateMap<Order, CreateOrderDto>().ReverseMap();
             CreateMap<Order, UpdateOrderDto>().ReverseMap();
+            // Users
+            CreateMap<Employee, RegisterUserDto>().ReverseMap();
+            CreateMap<Employee, LoginUserDto>().ReverseMap();
         }
     }
 }

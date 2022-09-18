@@ -1,7 +1,6 @@
 ﻿using CoffeeShopAPI.Exceptions;
 using CoffeeShopAPI.Models;
 using Newtonsoft.Json;
-using System.Net;
 using System.Net.Mime;
 
 namespace CoffeeShopAPI.Middleware
@@ -14,7 +13,7 @@ namespace CoffeeShopAPI.Middleware
         public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
-            _logger = logger;   
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -38,7 +37,7 @@ namespace CoffeeShopAPI.Middleware
                 ErrorMessage = ex.Message
             };
 
-            switch(ex)
+            switch (ex)
             {
                 case NotFoundException notFoundException:
                     context.Response.StatusCode = StatusCodes.Status404NotFound;

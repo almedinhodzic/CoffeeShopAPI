@@ -1,8 +1,10 @@
 using CoffeeShopAPI.Config;
+using CoffeeShopAPI.Contracts;
 using CoffeeShopAPI.Data;
 using CoffeeShopAPI.IRepository;
 using CoffeeShopAPI.Middleware;
 using CoffeeShopAPI.Repository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -18,9 +20,10 @@ namespace CoffeeShopAPI
             // Add services to the container.
 
             // Add Connection to the database
+            var connectionString = builder.Configuration.GetConnectionString("Default");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+                options.UseSqlServer(connectionString);
             });
 
             // Add logging into the project
@@ -28,14 +31,22 @@ namespace CoffeeShopAPI
                 (ctx, lc) =>
                     lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
+            //var key = builder.Configuration["SecretKey"];
+
             // Adding AutoMapper
             builder.Services.AddAutoMapper(typeof(MapperConfig));
 
+            // Identity provider
+
+            builder.Services.AddIdentityCore<Employee>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
             // Repository injections
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IAuthManager, AuthManager>();
 
             builder.Services.AddCors(options =>
             {
