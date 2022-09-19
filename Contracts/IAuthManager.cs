@@ -7,6 +7,6 @@ namespace CoffeeShopAPI.Contracts
     public interface IAuthManager
     {
         Task<IEnumerable<IdentityError>> Register(RegisterUserDto userDto);
-        Task<bool> Login(LoginUserDto loginUserDto);
+        Task<AuthResponseDto?> Login(LoginUserDto loginUserDto);
     }
 }

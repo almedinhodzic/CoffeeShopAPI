@@ -4,6 +4,11 @@ using CoffeeShopAPI.Contracts;
 using CoffeeShopAPI.Data;
 using CoffeeShopAPI.Models.Users;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace CoffeeShopAPI.Repository
 {
@@ -11,26 +16,35 @@ namespace CoffeeShopAPI.Repository
     {
         private readonly IMapper _mapper;
         private readonly UserManager<Employee> _userManager;
-        public AuthManager(UserManager<Employee> userManager, IMapper mapper)
+        private readonly IConfiguration _config;
+        public AuthManager(UserManager<Employee> userManager,
+            IMapper mapper,
+            IConfiguration configuration)
         {
             _mapper = mapper;
             _userManager = userManager;
+            _config = configuration;
         }
 
-        public async Task<bool> Login(LoginUserDto loginUserDto)
+        public async Task<AuthResponseDto?> Login(LoginUserDto loginUserDto)
         {
             var user = await _userManager.FindByNameAsync(loginUserDto.Email);
-            if(user == null)
+            if (user == null)
             {
-                return false;
+                return null;
             }
             var passwordCorrect = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
-            if(!passwordCorrect)
+            if (!passwordCorrect)
             {
-                return false;
+                return null;
             }
 
-            return true;
+            var token = await GenerateJwtToken(user);
+            return new AuthResponseDto
+            {
+                UserId = user.Id,
+                Token = token
+            };
         }
 
         public async Task<IEnumerable<IdentityError>> Register(RegisterUserDto userDto)
@@ -40,12 +54,41 @@ namespace CoffeeShopAPI.Repository
 
             var result = await _userManager.CreateAsync(user, userDto.Password);
 
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, Roles.User);
             }
 
             return result.Errors;
         }
+
+        private async Task<string> GenerateJwtToken(Employee user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var roleClaims = roles.Select(x => new Claim(ClaimTypes.Role, x)).ToList();
+            var userClaims = await _userManager.GetClaimsAsync(user);
+
+            var claims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            }.Union(roleClaims).Union(userClaims);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["JwtSettings:Issuer"],
+                audience: _config["JwtSettings:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_config["JwtSettings:DurationInMinutes"])),
+                signingCredentials: credentials
+            );
+            
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
     }
 }

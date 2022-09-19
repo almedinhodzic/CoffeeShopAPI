@@ -40,16 +40,16 @@ namespace CoffeeShopAPI.Controllers
         [Route("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Login([FromBody] LoginUserDto loginUserDto)
+        public async Task<ActionResult> Login([FromBody] LoginUserDto loginUserDto)
         {
-            var logginSuccess = await _authManager.Login(loginUserDto);
-            if (!logginSuccess)
+            var authResponse = await _authManager.Login(loginUserDto);
+            if (authResponse == null)
             {
                 ModelState.AddModelError("", "Invalid Credentials");
                 return Unauthorized(ModelState);
             }
 
-            return Ok();
+            return Ok(authResponse);
         }
 
     }
