@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using CoffeeShopAPI.Common;
 using CoffeeShopAPI.Data;
 using CoffeeShopAPI.Exceptions;
 using CoffeeShopAPI.IRepository;
 using CoffeeShopAPI.Models.Categories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopAPI.Controllers
@@ -11,6 +13,7 @@ namespace CoffeeShopAPI.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]
+
     public class CategoriesController : ControllerBase
     {
         public readonly ICategoryRepository _categoryRepository;
@@ -25,6 +28,7 @@ namespace CoffeeShopAPI.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<ActionResult<List<CategoryDto>>> GetCategories()
         {
             var categories = await _categoryRepository.GetAllAsync();
@@ -40,6 +44,7 @@ namespace CoffeeShopAPI.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<ActionResult<CategoryDto>> GetCategory(int id)
         {
 
@@ -57,6 +62,7 @@ namespace CoffeeShopAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {
             if (!ModelState.IsValid)
@@ -74,6 +80,7 @@ namespace CoffeeShopAPI.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
             if (id != updateCategoryDto.Id)
@@ -97,6 +104,7 @@ namespace CoffeeShopAPI.Controllers
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             if (!await _categoryRepository.Exists(id))

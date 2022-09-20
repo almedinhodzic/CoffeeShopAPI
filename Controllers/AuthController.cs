@@ -52,5 +52,22 @@ namespace CoffeeShopAPI.Controllers
             return Ok(authResponse);
         }
 
+        [HttpPost]
+        [Route("refresh")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult> RefreshToken([FromBody] AuthResponseDto request)
+        {
+            var authResponse = await _authManager.VerifyRefreshToken(request);
+
+            if (authResponse == null)
+            {
+                return Unauthorized();
+            }
+
+            return Ok();
+        }
+
+
     }
 }

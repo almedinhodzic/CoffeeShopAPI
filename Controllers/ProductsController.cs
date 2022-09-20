@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
+using CoffeeShopAPI.Common;
 using CoffeeShopAPI.Data;
 using CoffeeShopAPI.Exceptions;
 using CoffeeShopAPI.IRepository;
 using CoffeeShopAPI.Models.Products;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class ProductsController : ControllerBase
     {
         private readonly IWebHostEnvironment webHostEnvironment;
@@ -27,6 +30,7 @@ namespace CoffeeShopAPI.Controllers
 
         // GET: api/Products
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
             var products = await _productRepository.GetAllAsync();
@@ -36,6 +40,7 @@ namespace CoffeeShopAPI.Controllers
 
         // GET: api/Products/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<ProductDetailsDto>> GetProduct(int id)
         {
             var product = await _productRepository.GetProductDetailsAsync(id);
@@ -51,6 +56,7 @@ namespace CoffeeShopAPI.Controllers
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDto productDto)
         {
             if (id != productDto.Id)
@@ -78,6 +84,7 @@ namespace CoffeeShopAPI.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<ActionResult<ProductDetailsDto>> CreateProduct(CreateProductDto productDto)
         {
             if (!ModelState.IsValid)
@@ -101,6 +108,7 @@ namespace CoffeeShopAPI.Controllers
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             if (!await _productRepository.Exists(id))

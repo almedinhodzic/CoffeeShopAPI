@@ -8,5 +8,7 @@ namespace CoffeeShopAPI.Contracts
     {
         Task<IEnumerable<IdentityError>> Register(RegisterUserDto userDto);
         Task<AuthResponseDto?> Login(LoginUserDto loginUserDto);
+        Task<AuthResponseDto> VerifyRefreshToken(AuthResponseDto request);
+        Task<string> CreateRefreshToken(Employee user);
     }
 }

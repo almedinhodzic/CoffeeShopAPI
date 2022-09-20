@@ -42,8 +42,10 @@ namespace CoffeeShopAPI
             // Identity provider
 
             builder.Services.AddIdentityCore<Employee>()
+                .AddTokenProvider<DataProtectorTokenProvider<Employee>>("CoffeeShop")
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
             // Repository injections
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -123,6 +125,7 @@ namespace CoffeeShopAPI
 
             app.UseCors("AllowAll");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

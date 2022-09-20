@@ -26,6 +26,14 @@ namespace CoffeeShopAPI.Repository
             _config = configuration;
         }
 
+        public async Task<string> CreateRefreshToken(Employee user)
+        {
+            await _userManager.RemoveAuthenticationTokenAsync(user, "CoffeeShop", "RefreshToken");
+            var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, "CoffeeShop", "RefreshToken");
+            var result = await _userManager.SetAuthenticationTokenAsync(user, "CoffeeShop", "RefreshToken", newRefreshToken);
+            return newRefreshToken;
+        }
+
         public async Task<AuthResponseDto?> Login(LoginUserDto loginUserDto)
         {
             var user = await _userManager.FindByNameAsync(loginUserDto.Email);
@@ -43,7 +51,8 @@ namespace CoffeeShopAPI.Repository
             return new AuthResponseDto
             {
                 UserId = user.Id,
-                Token = token
+                Token = token,
+                RefreshToken = await CreateRefreshToken(user),
             };
         }
 
@@ -60,6 +69,35 @@ namespace CoffeeShopAPI.Repository
             }
 
             return result.Errors;
+        }
+
+        public async Task<AuthResponseDto?> VerifyRefreshToken(AuthResponseDto request)
+        {
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            var tokenContent = jwtSecurityTokenHandler.ReadJwtToken(request.Token);
+            var username = tokenContent.Claims.ToList().FirstOrDefault(q => q.Type == JwtRegisteredClaimNames.Email)?.Value;
+            var user = await _userManager.FindByNameAsync(username);
+
+            if(user == null)
+            {
+                return null;
+            }
+
+            var isValidRefreshToken = await _userManager.VerifyUserTokenAsync(user, "CoffeeShop", "RefreshToken", request.RefreshToken);
+
+            if(isValidRefreshToken)
+            {
+                var token = await GenerateJwtToken(user);
+                return new AuthResponseDto
+                {
+                    Token = token,
+                    UserId = user.Id,
+                    RefreshToken = await CreateRefreshToken(user),
+                };
+            };
+
+            await _userManager.UpdateSecurityStampAsync(user);
+            return null;
         }
 
         private async Task<string> GenerateJwtToken(Employee user)

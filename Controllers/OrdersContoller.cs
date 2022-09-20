@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopAPI.Controllers
 {
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
     public class OrdersContoller : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
