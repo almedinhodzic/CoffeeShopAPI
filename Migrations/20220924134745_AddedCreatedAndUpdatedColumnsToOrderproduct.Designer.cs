@@ -4,6 +4,7 @@ using CoffeeShopAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoffeeShopAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220924134745_AddedCreatedAndUpdatedColumnsToOrderproduct")]
+    partial class AddedCreatedAndUpdatedColumnsToOrderproduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,15 +245,15 @@ namespace CoffeeShopAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "390f26ed-6128-4980-bd18-b165bbfec0fd",
-                            ConcurrencyStamp = "cc7bf4c5-3d91-4d7d-b6a0-a848dbdd9d28",
+                            Id = "5fbde2f4-eaf2-420f-bbe4-ea37c8d30314",
+                            ConcurrencyStamp = "5293ff2b-b4ec-4b9b-bb35-74851687113e",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "da64b1f5-c9f7-4d6e-9d82-e7bc03fbaedc",
-                            ConcurrencyStamp = "67f00c51-1b69-4282-931b-72f813331755",
+                            Id = "83f6fd19-f718-4ee3-af29-edb9be8a835f",
+                            ConcurrencyStamp = "8bf50b78-daea-4c7f-b0b6-8fb5dd0c38c6",
                             Name = "user",
                             NormalizedName = "USER"
                         });

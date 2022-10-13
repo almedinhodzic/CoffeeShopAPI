@@ -20,6 +20,8 @@ namespace CoffeeShopAPI.Data
         public DbSet<Product>? Products { get; set; }
         public DbSet<Category>? Categories { get; set; }
         public DbSet<Order>? Orders { get; set; }
+        public DbSet<OrderProduct>? OrderProducts { get; set; }
+        public DbSet<Employee>? Employees { get; set; }
 
     }
 }

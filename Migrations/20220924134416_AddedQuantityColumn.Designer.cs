@@ -4,6 +4,7 @@ using CoffeeShopAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoffeeShopAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220924134416_AddedQuantityColumn")]
+    partial class AddedQuantityColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,9 +153,6 @@ namespace CoffeeShopAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
@@ -165,9 +164,6 @@ namespace CoffeeShopAPI.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -243,15 +239,15 @@ namespace CoffeeShopAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "390f26ed-6128-4980-bd18-b165bbfec0fd",
-                            ConcurrencyStamp = "cc7bf4c5-3d91-4d7d-b6a0-a848dbdd9d28",
+                            Id = "83e4052e-9eb3-4928-a971-c1e905eab27b",
+                            ConcurrencyStamp = "e15605d4-4d44-4f16-bfad-d6f4ab310335",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "da64b1f5-c9f7-4d6e-9d82-e7bc03fbaedc",
-                            ConcurrencyStamp = "67f00c51-1b69-4282-931b-72f813331755",
+                            Id = "e607b999-1eb1-42fc-a7ad-9e74db3aed65",
+                            ConcurrencyStamp = "2512e63b-a0a8-4a42-8a4a-88c14ea5ebfa",
                             Name = "user",
                             NormalizedName = "USER"
                         });

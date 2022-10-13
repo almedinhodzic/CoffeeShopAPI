@@ -21,12 +21,11 @@ namespace CoffeeShopAPI.Config
             CreateMap<Category, CreateCategoryDto>().ReverseMap();
             CreateMap<Category, UpdateCategoryDto>().ReverseMap();
             // Order Mapping
-            CreateMap<Order, OrderDetailsDto>().ReverseMap();
-            CreateMap<Order, CreateOrderDto>().ReverseMap();
-            CreateMap<Order, UpdateOrderDto>().ReverseMap();
+
             // Users
             CreateMap<Employee, RegisterUserDto>().ReverseMap();
             CreateMap<Employee, LoginUserDto>().ReverseMap();
+            CreateMap<Employee, EmployeeDto>().ReverseMap();
         }
     }
 }

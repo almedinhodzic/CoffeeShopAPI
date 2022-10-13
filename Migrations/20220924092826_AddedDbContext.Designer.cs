@@ -4,6 +4,7 @@ using CoffeeShopAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoffeeShopAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220924092826_AddedDbContext")]
+    partial class AddedDbContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,6 +137,9 @@ namespace CoffeeShopAPI.Migrations
                     b.Property<int>("TableNumber")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("Updated")
                         .HasColumnType("datetime2");
 
@@ -151,9 +156,6 @@ namespace CoffeeShopAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
@@ -163,11 +165,8 @@ namespace CoffeeShopAPI.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("Total")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -201,6 +200,9 @@ namespace CoffeeShopAPI.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -210,6 +212,8 @@ namespace CoffeeShopAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Products");
                 });
@@ -243,15 +247,15 @@ namespace CoffeeShopAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "390f26ed-6128-4980-bd18-b165bbfec0fd",
-                            ConcurrencyStamp = "cc7bf4c5-3d91-4d7d-b6a0-a848dbdd9d28",
+                            Id = "20ec29f2-a05a-48c6-862d-1ae07f897786",
+                            ConcurrencyStamp = "d87726d8-39f9-43ec-ac70-c25da7ccf04e",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "da64b1f5-c9f7-4d6e-9d82-e7bc03fbaedc",
-                            ConcurrencyStamp = "67f00c51-1b69-4282-931b-72f813331755",
+                            Id = "63c77256-05fc-4623-b507-04350d6e9457",
+                            ConcurrencyStamp = "cd0b801b-971f-49fd-8041-8c404cfcbbbb",
                             Name = "user",
                             NormalizedName = "USER"
                         });
@@ -366,7 +370,7 @@ namespace CoffeeShopAPI.Migrations
             modelBuilder.Entity("CoffeeShopAPI.Data.OrderProduct", b =>
                 {
                     b.HasOne("CoffeeShopAPI.Data.Order", "Order")
-                        .WithMany("OrderProducts")
+                        .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -389,6 +393,10 @@ namespace CoffeeShopAPI.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CoffeeShopAPI.Data.Order", null)
+                        .WithMany("Products")
+                        .HasForeignKey("OrderId");
 
                     b.Navigation("Category");
                 });
@@ -446,7 +454,7 @@ namespace CoffeeShopAPI.Migrations
 
             modelBuilder.Entity("CoffeeShopAPI.Data.Order", b =>
                 {
-                    b.Navigation("OrderProducts");
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

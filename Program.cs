@@ -40,7 +40,7 @@ namespace CoffeeShopAPI
             builder.Services.AddAutoMapper(typeof(MapperConfig));
 
             // Identity provider
-
+            
             builder.Services.AddIdentityCore<Employee>()
                 .AddTokenProvider<DataProtectorTokenProvider<Employee>>("CoffeeShop")
                 .AddRoles<IdentityRole>()
@@ -51,6 +51,7 @@ namespace CoffeeShopAPI
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             builder.Services.AddScoped<IAuthManager, AuthManager>();
 
             builder.Services.AddCors(options =>
